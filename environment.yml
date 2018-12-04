@@ -1,0 +1,11 @@
+name: entry-cli-env
+channels:
+  - openbabel
+  - rdkit
+  - defaults
+dependencies:
+- python=3
+- numpy
+- nose
+- openbabel
+- rdkit
