@@ -1,6 +1,8 @@
 Entryway analysis
 =================
 
+[![Build Status](https://travis-ci.com/bdrown/entry-cli.svg?token=nW3s1WqrpGx8m3s2Pwu2&branch=master)](https://travis-ci.com/bdrown/entry-cli)
+
 The eNTRy rules are a series of guidelines that can increase small-molecule
 accumulation in gram-negative bacteria. A molecule is likely to accumulate if it
 contains few rotatable bonds, low three dimensionality, and an ionizable
