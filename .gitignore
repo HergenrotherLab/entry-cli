@@ -116,3 +116,6 @@ dmypy.json
 
 # JetBeans
 .idea/
+
+# Mac finder artifacts
+.DS_Store

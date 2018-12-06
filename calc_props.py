@@ -1,10 +1,124 @@
 ###############################
+import argparse
+import os
+import sys
+import csv
 import openbabel as ob
 import pybel
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
 ###############################
+
+__doc__="""Performs calculation of physiochemical properties of potential antibiotics. SMILES strings are parsed,
+conformers are generated, and properties calculated. Properties include: chemical formula, molecular weight, rotatable
+bonds, globularity, and PBF.
+"""
+
+
+def main():
+    args = parse_args(sys.argv[1:])
+    if(args.smiles):
+        mol = smiles_to_ob(args.smiles)
+        properties = average_properties(mol)
+        properties['smiles'] = args.smiles
+        # A file will be written if command line option provide, otherwise write to stdout
+        if(args.output):
+            mols_to_write = [properties]
+            write_csv(mols_to_write, args.output)
+        else:
+            report_properties(properties)
+    elif(args.batch_file):
+        mols = parse_batch(args.batch_file)
+        mols_to_write = []
+        for smiles, name in mols:
+            mol = smiles_to_ob(smiles)
+            properties = average_properties(mol)
+            properties['smiles'] = name
+            mols_to_write.append(properties)
+        write_csv(mols_to_write, args.output)
+
+
+def parse_args(arguments):
+    """Parse the command line options.
+    :return:  All script options
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-s", "--smiles", dest="smiles", metavar="SMILES string", default=None)
+    group.add_argument("-b", "--batch", dest="batch_file", metavar="Batch file", default=None)
+    parser.add_argument("-o", "--output", dest="output", metavar="Output file", default=None,
+                        help="Defaults to csv file with same name as input")
+
+    args = parser.parse_args(arguments)
+    if not args.smiles and not args.batch_file:
+        parser.error("Input structure is needed")
+
+    # If no output file is specified in batch mode, then replace the file extension of the input with .csv
+    if args.batch_file and not args.output:
+        args.output = os.path.splitext(args.batch_file)[0] + '.csv'
+
+    return args
+
+
+def report_properties(properties):
+    """
+    Write out the results of physiochemical properties to stdout
+
+    :param smiles: SMILES string of input molecule
+    :param properties: physiochemical properties to report
+    :type smiles: str
+    :type properties: dict
+    :return: None
+    """
+    print("Properties for %s" % properties['smiles'])
+    print("--------------------------")
+    print("Mol. Wt.:\t%f" % properties['molwt'])
+    print("Formula:\t%s" % properties['formula'])
+    print("RB:\t\t%i" % properties['rb'])
+    print("Glob:\t\t%f" % properties['glob'])
+    print("PBF:\t\t%f" % properties['pbf'])
+
+
+def parse_batch(filename):
+    """
+    Read a file containing names and SMILES strings
+
+    Expects a file with no header in which each line contains a SMILES string followed by a name for the molecule.
+    SMILES and name can be separated by any whitespace.
+
+    :param filename: file to read
+    :type filename: str
+    :return: List of tuples with names and SMILES
+    :rtype: list
+    """
+    smiles = []
+    names = []
+    with(open(filename, 'r')) as batch:
+        for line in batch:
+            (smi, name) = tuple(line.split())
+            smiles.append(smi)
+            names.append(name)
+    return zip(smiles, names)
+
+
+def write_csv(mols_to_write, filename):
+    """
+    Write out results of physiochemical properties
+
+    :param mols_to_write: list of molecule properties to write
+    :param filename: path to file to write
+    :type mols_to_write: list
+    :type filename: str
+    :return: None
+    """
+    with(open(filename, 'w')) as out:
+        fieldnames = ['smiles', 'formula', 'molwt', 'rb', 'glob', 'pbf']
+        writer = csv.DictWriter(out, fieldnames=fieldnames)
+        writer.writeheader()
+        for mol in mols_to_write:
+            writer.writerow(mol)
+
 
 def average_properties(mol):
     """
@@ -30,7 +144,7 @@ def average_properties(mol):
         pbfs[i] = calc_pbf(pymol)
 
     data = {
-        'form': pymol.formula,
+        'formula': pymol.formula,
         'molwt': pymol.molwt,
         'rb': rotatable_bonds(pymol),
         'glob': np.mean(globs),
@@ -245,3 +359,6 @@ def distance(x, C, N):
             will be negative if the points beside opposite side of the normal vector
     """
     return np.dot(x - C, N)
+
+if __name__ == '__main__':
+    main()

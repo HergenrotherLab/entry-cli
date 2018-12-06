@@ -1,0 +1,100 @@
+from nose.tools import *
+import openbabel
+import pybel
+import os
+from .context import calc_props
+
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def test_smiles_benzene():
+    mol = calc_props.smiles_to_ob("c1ccccc1")
+    assert(isinstance(mol, openbabel.OBMol))
+    assert_equals(mol.NumAtoms(), 12)
+
+def test_rb_basic():
+    # DNM
+    mol = calc_props.smiles_to_ob("CC(C1=CC(C(C)=CC(N2C)=O)=C2C3=C1N4CO3)=CC4=O")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 0)
+
+    # Ribocil C
+    mol = calc_props.smiles_to_ob("C1CC(CN(C1)CC2=CN(C=N2)C3=NC=CC=N3)C4=NC(=O)C=C(N4)C5=CC=CS5")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 5)
+
+    # Triphenylphosphine
+    mol = calc_props.smiles_to_ob("C1(P(C2=CC=CC=C2)C3=CC=CC=C3)=CC=CC=C1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 3)
+
+def test_rb_amide():
+    # Ala-Ala
+    mol = calc_props.smiles_to_ob("[H]N[C@H](C(N[C@H](C(O)=O)C)=O)C")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 3)
+
+def test_rb_alkyne():
+    # but-1-yn-1-ylbenzene
+    mol = calc_props.smiles_to_ob("CCC#CC1=CC=CC=C1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 1)
+
+def test_rb_symmetric_alkyne():
+    # hex-3-yne
+    mol = calc_props.smiles_to_ob("CCC#CCC")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 1)
+
+def test_rb_cyclohexane_alkyne():
+    # but-1-yn-1-ylcyclohexane
+    mol = calc_props.smiles_to_ob("CCC#CC1CCCCC1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 1)
+
+def test_rb_cyclohexene_alkyne():
+    # 1-(but-1-yn-1-yl)cyclohex-1-ene
+    mol = calc_props.smiles_to_ob("CCC#CC1=CCCCC1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 1)
+
+def test_rb_alkene():
+    # (E)-but-1-en-1-ylbenzene
+    mol = calc_props.smiles_to_ob("CC/C=C/C1=CC=CC=C1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 2)
+
+def test_pbf():
+    obmol = openbabel.OBMol()
+    obConv = openbabel.OBConversion()
+    obConv.SetInFormat("mol")
+    obConv.ReadFile(obmol, os.path.join(THIS_DIR, "data/triphenylphosphine.mol"))
+    pymol = pybel.Molecule(obmol)
+    assert_almost_equal(calc_props.calc_pbf(pymol), 1.0072297, 6, 1)
+
+def test_glob():
+    obmol = openbabel.OBMol()
+    obConv = openbabel.OBConversion()
+    obConv.SetInFormat("mol")
+    obConv.ReadFile(obmol, os.path.join(THIS_DIR, "data/triphenylphosphine.mol"))
+    pymol = pybel.Molecule(obmol)
+    assert_almost_equal(calc_props.calc_glob(pymol), 0.245503, 6, 1)
+
+def test_glob_benzene():
+    mol = calc_props.smiles_to_ob("c1ccccc1")
+    properties = calc_props.average_properties(mol)
+    assert_almost_equal(properties['glob'], 0, 2, 1)
+
+def test_adamantane():
+    mol = calc_props.smiles_to_ob("C1C3CC2CC(CC1C2)C3")
+    properties = calc_props.average_properties(mol)
+    assert_almost_equal(properties['glob'], 1, 2, 1)
+
+def test_cipro():
+    mol = calc_props.smiles_to_ob("O=C1C(C(O)=O)=CN(C2CC2)C3=CC(N4CCNCC4)=C(F)C=C31")
+    properties = calc_props.average_properties(mol)
+    assert_almost_equal(properties['glob'], 0.04, 2, 1)
+
+def test_dnm():
+    mol = calc_props.smiles_to_ob("CC(C1=CC(C(C)=CC(N2C)=O)=C2C3=C1N4CO3)=CC4=O")
+    properties = calc_props.average_properties(mol)
+    assert_almost_equal(properties['glob'], 0.024, 2, 1)

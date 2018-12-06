@@ -16,20 +16,35 @@ locally.
 Dependencies
 ------------
 
-Entryway relies on OpenBabel for handling chemical structures and conformer
-generation and NumPy for globularity calculations. These dependencies are most
-conveniently installed via [Conda](https://conda.io/docs/user-guide/install/index.html):
+Entryway relies on [OpenBabel](http://openbabel.org) and [RDKit](https://www.rdkit.org/) for handling chemical 
+structures and conformer generation and NumPy for globularity calculations. These dependencies are most conveniently 
+installed via [Conda](https://conda.io/docs/user-guide/install/index.html). The included `environment.yml` 
+file makes this straightforward:
 
 ```bash
 conda env create
 conda activate entry-cli-env
 ```
 
+Alternatively, they can be installed individually:
+
+```bash
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+bash miniconda.sh -b -p $HOME/miniconda
+export PATH="$HOME/miniconda/bin:$PATH"
+conda update
+conda create -n entry-cli-env python=3 numpy -y
+conda install -c rdkit rdkit -y
+conda install -c openbabel openbabel -y
+conda activate entry-cli-env
+```
+
 Running calculations
 --------------------
 
-Although other file formats will be implemented shortly, molecules can most
-be submitted as SMILES strings for now.
+Although other file formats will be implemented shortly, molecules can be submitted as SMILES strings for now.
+
+This can be achieved through command line arguments:
 
 ```bash
 # Ampicillin
@@ -38,3 +53,21 @@ python calc_props.py -s "O=C(O)[C@@H]2N3C(=O)[C@@H](NC(=O)[C@@H](c1ccccc1)N)[C@H
 # Deoxynybomycin
 python calc_props.py -s "CC(C1=CC(C(C)=CC(N2C)=O)=C2C3=C1N4CO3)=CC4=O"
 ```
+
+Alternatively, a batch file can be provided that contains several molecules with SMILES and names. Results are reported 
+as a csv file. The name of the output file is optional. If no output file is specified, then the base name of the batch
+file is used:
+
+```bash
+# The following will provide the same result
+python calc_props.py -b tests/b-lactams.smi -o tests/b-lactam.csv
+python calc_props.py -b tests/b-lactams.smi
+```
+
+Citing
+------
+
+Please cite our paper on the eNTRy rules:
+
+[Richter, M. F.; Drown, B. S.; Riley, A. P.; Garcia, A.; Shirai, T.; Svec, R. L.; Hergenrother, P. J. *Nature* __2017__,
+*545*, 299-304.](https://doi.org/10.1038/nature22308)

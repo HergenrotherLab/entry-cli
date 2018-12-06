@@ -2,6 +2,6 @@ init:
 	conda env create
 
 test:
-	nosetests calc_props_test.py
+	nosetests tests
 
 .PHONY: init test
