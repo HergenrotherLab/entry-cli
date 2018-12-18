@@ -1,8 +1,11 @@
 from nose.tools import *
 from contextlib import contextmanager
 import os
-import io
 import sys
+if (sys.version_info > (3, 0)):
+    from io import StringIO
+else:
+    from io import BytesIO as StringIO
 from .context import calc_props
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -48,7 +51,7 @@ def stdout_redirector(stream):
         sys.stdout = old_stdout
 
 def test_report_properties():
-    f = io.StringIO()
+    f = StringIO()
     with stdout_redirector(f):
         calc_props.report_properties(build_molecule())
     terms = ['Properties', 'Mol. Wt.', '282.29', 'Formula', 'RB', 'Glob', 'PBF']

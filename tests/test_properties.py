@@ -27,9 +27,33 @@ def test_rb_basic():
     pymol = pybel.Molecule(mol)
     assert_equals(calc_props.rotatable_bonds(pymol), 3)
 
+def test_rb_alcohol():
+    # n-butanol
+    mol = calc_props.smiles_to_ob("CCCCO")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 2)
+
+def test_rb_amine():
+    # n-butylamine
+    mol = calc_props.smiles_to_ob("CCCCN")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 2)
+
 def test_rb_amide():
     # Ala-Ala
     mol = calc_props.smiles_to_ob("[H]N[C@H](C(N[C@H](C(O)=O)C)=O)C")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 3)
+
+def test_rb_ketene():
+    # pent-1-en-1-one
+    mol = calc_props.smiles_to_ob("[H]C(CCC)=C=O")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 2)
+
+def test_rb_allene():
+    # 3-methylocta-3,4-diene
+    mol = calc_props.smiles_to_ob("[H]C(CCC)=C=C(C)CC")
     pymol = pybel.Molecule(mol)
     assert_equals(calc_props.rotatable_bonds(pymol), 3)
 
@@ -62,6 +86,30 @@ def test_rb_alkene():
     mol = calc_props.smiles_to_ob("CC/C=C/C1=CC=CC=C1")
     pymol = pybel.Molecule(mol)
     assert_equals(calc_props.rotatable_bonds(pymol), 2)
+
+def test_rb_nitrile():
+    # (E)-5-phenylpent-4-enenitrile
+    mol = calc_props.smiles_to_ob("N#CCC/C=C/C1=CC=CC=C1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 3)
+
+def test_rb_azide():
+    # (E)-(4-azidobut-1-en-1-yl)benzene
+    mol = calc_props.smiles_to_ob("[N-]=[N+]=NCC/C=C/C1=CC=CC=C1")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 4)
+
+def test_rb_ester():
+    # phenyl butyrate
+    mol = calc_props.smiles_to_ob("CCCC(OC1=CC=CC=C1)=O")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 4)
+
+def test_rb_ketone():
+    # 1-phenylpentan-2-one
+    mol = calc_props.smiles_to_ob("CCCC(CC1=CC=CC=C1)=O")
+    pymol = pybel.Molecule(mol)
+    assert_equals(calc_props.rotatable_bonds(pymol), 4)
 
 def test_pbf():
     obmol = openbabel.OBMol()

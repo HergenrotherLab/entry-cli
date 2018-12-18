@@ -278,9 +278,40 @@ def rotatable_bonds(mol):
     """
     rb = 0
     for bond in ob.OBMolBondIter(mol.OBMol):
-        if bond.IsRotor() and not bond.IsAmide():
+        if is_rotor(bond):
             rb += 1
     return rb
+
+
+def is_rotor(bond, include_amides=False):
+    """
+    Determines if a bond is rotatable
+
+    Rules for rotatable bonds:
+    Must be a single or triple bond
+    Must include two heavy atoms
+    Cannot be terminal
+    Cannot be in a ring
+    If a single bond to one sp hybridized atom, not rotatable
+
+    :param bond:
+    :return: If a bond is rotatable
+    :rtype: bool
+    """
+    # Must be single or triple bond
+    if bond.IsDouble(): return False
+
+    # Don't count the N-C bond of amides
+    if bond.IsAmide() and not include_amides: return False
+
+    # Not in a ring
+    if bond.FindSmallestRing() is not None: return False
+
+    # Don't count single bonds adjacent to triple bonds, still want to count the triple bond
+    if (bond.GetBeginAtom().GetHyb() == 1) != (bond.GetEndAtom().GetHyb() == 1): return False
+
+    # Cannot be terminal
+    if bond.GetBeginAtom().GetHvyValence() > 1 and bond.GetEndAtom().GetHvyValence() > 1: return True
 
 
 def calc_avg_dist(points, C, N):
