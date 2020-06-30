@@ -140,8 +140,9 @@ def average_properties(mol):
         mols.SetConformer(i)
         pymol = pybel.Molecule(mols)
         # calculate properties
-        globs[i] = calc_glob(pymol)
-        pbfs[i] = calc_pbf(pymol)
+        points = get_atom_coords(pymol)
+        globs[i] = calc_glob(points)
+        pbfs[i] = calc_pbf(points)
 
     data = {
         'formula': pymol.formula,
@@ -219,19 +220,18 @@ def run_confab(mol, rmsd_cutoff=0.5, conf_cutoff=100000, energy_cutoff=50.0, con
 
     return mol
 
-def calc_glob(mol):
+def calc_glob(points):
     """
     Calculates the globularity (glob) of a molecule
 
     glob varies from 0 to 1 with completely flat molecules like benzene having a
     glob of 0 and spherical molecules like adamantane having a glob of 1
 
-    :param mol: pybel molecule object
-    :type mol: pybel.Molecule
+    :param points: numpy array of atom coordinates
+    :type points: numpy array
     :return: globularity of molecule
     :rtype: float | int
     """
-    points = get_atom_coords(mol, heavy_only = False)
     if points is None:
         return 0
     points = points.T
@@ -250,17 +250,16 @@ def calc_glob(mol):
         return -1
 
 
-def calc_pbf(mol):
+def calc_pbf(points):
     """
     Uses SVD to fit atoms in molecule to a plane then calculates the average
     distance to that plane.
 
-    :param mol: pybel molecule object
-    :type mol: pybel.Molecule
+    :param points: numpy array of atom coordinates
+    :type points: numpy array
     :return: average distance of all atoms to the best fit plane
     :rtype: float
     """
-    points = get_atom_coords(mol)
     c, n = svd_fit(points)
     pbf = calc_avg_dist(points, c, n)
     return pbf
@@ -328,7 +327,7 @@ def calc_avg_dist(points, C, N):
         sum += abs(distance(xyz, C, N))
     return sum / len(points)
 
-def get_atom_coords(mol, heavy_only = False):
+def get_atom_coords(mol):
     """
     Retrieve the 3D coordinates of all atoms in a molecules
 
@@ -337,9 +336,10 @@ def get_atom_coords(mol, heavy_only = False):
     """
     num_atoms = len(mol.atoms)
     pts = np.empty(shape = (num_atoms,3))
+    atoms = mol.atoms
 
     for a in range(num_atoms):
-        pts[a] = mol.atoms[a].coords
+        pts[a] = atoms[a].coords
 
     return pts
 

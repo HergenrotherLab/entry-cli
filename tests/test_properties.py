@@ -117,7 +117,8 @@ def test_pbf():
     obConv.SetInFormat("mol")
     obConv.ReadFile(obmol, os.path.join(THIS_DIR, "data/triphenylphosphine.mol"))
     pymol = pybel.Molecule(obmol)
-    assert_almost_equal(calc_props.calc_pbf(pymol), 1.0072297, 6, 1)
+    points = calc_props.get_atom_coords(pymol)
+    assert_almost_equal(calc_props.calc_pbf(points), 1.0072297, 6, 1)
 
 def test_glob():
     obmol = openbabel.OBMol()
@@ -125,7 +126,8 @@ def test_glob():
     obConv.SetInFormat("mol")
     obConv.ReadFile(obmol, os.path.join(THIS_DIR, "data/triphenylphosphine.mol"))
     pymol = pybel.Molecule(obmol)
-    assert_almost_equal(calc_props.calc_glob(pymol), 0.245503, 6, 1)
+    points = calc_props.get_atom_coords(pymol)
+    assert_almost_equal(calc_props.calc_glob(points), 0.245503, 6, 1)
 
 def test_glob_benzene():
     mol = calc_props.smiles_to_ob("c1ccccc1")
