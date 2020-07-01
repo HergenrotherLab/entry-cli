@@ -1,7 +1,7 @@
 Entryway analysis
 =================
 
-[![Build Status](https://travis-ci.com/bdrown/entry-cli.svg?token=nW3s1WqrpGx8m3s2Pwu2&branch=master)](https://travis-ci.com/bdrown/entry-cli)
+![Build](https://github.com/HergenrotherLab/entry-cli/workflows/Python%20application/badge.svg)
 
 The eNTRy rules are a series of guidelines that can increase small-molecule
 accumulation in gram-negative bacteria. A molecule is likely to accumulate if it
@@ -22,7 +22,7 @@ installed via [Conda](https://conda.io/docs/user-guide/install/index.html). The 
 file makes this straightforward:
 
 ```bash
-conda env create
+conda env create -f environment.yml
 conda activate entry-cli-env
 ```
 
@@ -33,9 +33,9 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O mi
 bash miniconda.sh -b -p $HOME/miniconda
 export PATH="$HOME/miniconda/bin:$PATH"
 conda update
-conda create -n entry-cli-env python=3 numpy -y
-conda install -c rdkit rdkit -y
-conda install -c openbabel openbabel -y
+conda create -n entry-cli-env python=3.6 numpy -y
+conda install -c rdkit rdkit=2018.09.1.0 -y
+conda install -c openbabel openbabel=2.4.1 -y
 conda activate entry-cli-env
 ```
 

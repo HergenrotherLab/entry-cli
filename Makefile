@@ -1,5 +1,5 @@
 init:
-	conda env create
+	conda env create -f environment.yml
 
 test:
 	nosetests tests
