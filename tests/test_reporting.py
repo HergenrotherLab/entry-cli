@@ -17,7 +17,8 @@ def build_molecule():
         'molwt': 282.293960,
         'rb': 0,
         'glob': 0.023820,
-        'pbf': 0.204747
+        'pbf': 0.204747,
+        'primary_amine': False
     }
     return properties
 
@@ -54,5 +55,5 @@ def test_report_properties():
     f = StringIO()
     with stdout_redirector(f):
         calc_props.report_properties(build_molecule())
-    terms = ['Properties', 'Mol. Wt.', '282.29', 'Formula', 'RB', 'Glob', 'PBF']
+    terms = ['Properties', 'Mol. Wt.', '282.29', 'Formula', 'RB', 'Glob', 'PBF', 'primary_amine']
     assert all(term in f.getvalue() for term in terms)

@@ -16,6 +16,12 @@ bonds, globularity, and PBF.
 """
 
 
+FUNCTIONAL_GROUP_TO_SMARTS = {
+    'primary_amine': pybel.Smarts('[$([N;H2;X3][CX4]),$([N;H3;X4+][CX4])]')
+}
+FUNCTIONAL_GROUPS = sorted(FUNCTIONAL_GROUP_TO_SMARTS.keys())
+
+
 def main():
     args = parse_args(sys.argv[1:])
     if(args.smiles):
@@ -78,6 +84,8 @@ def report_properties(properties):
     print("RB:\t\t%i" % properties['rb'])
     print("Glob:\t\t%f" % properties['glob'])
     print("PBF:\t\t%f" % properties['pbf'])
+    for functional_group in FUNCTIONAL_GROUPS:
+        print("%s:\t%s" % (functional_group, properties[functional_group]))
 
 
 def parse_batch(filename):
@@ -113,7 +121,7 @@ def write_csv(mols_to_write, filename):
     :return: None
     """
     with(open(filename, 'w')) as out:
-        fieldnames = ['smiles', 'formula', 'molwt', 'rb', 'glob', 'pbf']
+        fieldnames = ['smiles', 'formula', 'molwt', 'rb', 'glob', 'pbf'] + FUNCTIONAL_GROUPS
         writer = csv.DictWriter(out, fieldnames=fieldnames)
         writer.writeheader()
         for mol in mols_to_write:
@@ -151,6 +159,10 @@ def average_properties(mol):
         'glob': np.mean(globs),
         'pbf': np.mean(pbfs)
     }
+
+    for functional_group, smarts in FUNCTIONAL_GROUP_TO_SMARTS.items():
+        data[functional_group] = has_functional_group(pymol, smarts)
+
     return data
 
 
@@ -263,6 +275,20 @@ def calc_pbf(points):
     c, n = svd_fit(points)
     pbf = calc_avg_dist(points, c, n)
     return pbf
+
+
+def has_functional_group(mol, smarts):
+    """
+    Determines whether the molecule has the functional group specified by the SMARTS.
+
+    :param mol: pybel molecule object
+    :param smarts: pybel SMARTS object
+    :return: True if mol has an instance of the functional group, False otherwise
+    :rtype: bool
+    """
+    functional_groups = smarts.findall(mol)
+
+    return len(functional_groups) > 0
 
 
 def rotatable_bonds(mol):
