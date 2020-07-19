@@ -3,8 +3,8 @@ import argparse
 import os
 import sys
 import csv
-import openbabel as ob
-import pybel
+from openbabel import openbabel as ob
+from openbabel import pybel
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -324,7 +324,7 @@ def is_rotor(bond, include_amides=False):
     :rtype: bool
     """
     # Must be single or triple bond
-    if bond.IsDouble(): return False
+    if bond.GetBondOrder() == 2: return False
 
     # Don't count the N-C bond of amides
     if bond.IsAmide() and not include_amides: return False
@@ -336,7 +336,7 @@ def is_rotor(bond, include_amides=False):
     if (bond.GetBeginAtom().GetHyb() == 1) != (bond.GetEndAtom().GetHyb() == 1): return False
 
     # Cannot be terminal
-    if bond.GetBeginAtom().GetHvyValence() > 1 and bond.GetEndAtom().GetHvyValence() > 1: return True
+    if bond.GetBeginAtom().GetHvyDegree() > 1 and bond.GetEndAtom().GetHvyDegree() > 1: return True
 
 
 def calc_avg_dist(points, C, N):

@@ -1,5 +1,5 @@
 from nose.tools import *
-import openbabel
+from openbabel import openbabel
 import os
 from .context import calc_props
 

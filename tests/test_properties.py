@@ -1,6 +1,6 @@
 from nose.tools import *
-import openbabel
-import pybel
+from openbabel import openbabel
+from openbabel import pybel
 import os
 from .context import calc_props
 

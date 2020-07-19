@@ -34,8 +34,8 @@ bash miniconda.sh -b -p $HOME/miniconda
 export PATH="$HOME/miniconda/bin:$PATH"
 conda update
 conda create -n entry-cli-env python=3.6 numpy -y
-conda install -c rdkit rdkit=2018.09.1.0 -y
-conda install -c openbabel openbabel=2.4.1 -y
+conda install -c rdkit rdkit=2019.03.4.0 -y
+conda install -c openbabel openbabel=3.1.1 -y
 conda activate entry-cli-env
 ```
 
